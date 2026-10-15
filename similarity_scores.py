@@ -1,6 +1,7 @@
 import nltk
+import numpy as np
 from nltk.corpus import wordnet as wn
-from scipy.stats import pearsonr
+from sklearn.metrics.pairwise import cosine_similarity
 
 
 def get_wn_tag(pos_tag):
@@ -32,4 +33,19 @@ def noun_verb_wup(s1: str, s2: str):
     max_verb_score = calculate_max_wup(s1, s2, wn.VERB)
     
     return round((max_noun_score + max_verb_score) / 2, 3)
+
+
+def w2v_similarity(model, s1: str, s2: str):
+    """Returns mean w2v cosine similarity of s1 and s2. 0 if no tokens found in model."""
+    
+    t1 = [model[t] for t in nltk.word_tokenize(s1) if t in model]
+    t2 = [model[t] for t in nltk.word_tokenize(s2) if t in model]
+    
+    if not t1 or not t2:
+        return 0.0
+        
+    v1 = np.mean(t1, axis=0)
+    v2 = np.mean(t2, axis=0)
+
+    return round(cosine_similarity([v1], [v2])[0][0], 3)
 
