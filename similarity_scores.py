@@ -35,8 +35,8 @@ def noun_verb_wup(s1: str, s2: str):
     return round((max_noun_score + max_verb_score) / 2, 3)
 
 
-def w2v_similarity(model, s1: str, s2: str):
-    """Returns mean w2v cosine similarity of s1 and s2. 0 if no tokens found in model."""
+def sentence_similarity(model, s1: str, s2: str):
+    """Returns mean cosine similarity of s1 and s2. 0 if no tokens found in model."""
     
     t1 = [model[t] for t in nltk.word_tokenize(s1) if t in model]
     t2 = [model[t] for t in nltk.word_tokenize(s2) if t in model]
@@ -47,5 +47,12 @@ def w2v_similarity(model, s1: str, s2: str):
     v1 = np.mean(t1, axis=0)
     v2 = np.mean(t2, axis=0)
 
-    return round(cosine_similarity([v1], [v2])[0][0], 3)
+    return round(float(cosine_similarity([v1], [v2])[0][0]), 3)
+
+
+def bert_similarity(model, s1: str, s2: str):
+    """Returns cosine similarity of s1 and s2."""
+
+    e = model.encode([s1, s2])
+    return round(float(cosine_similarity([e[0]], [e[1]])[0][0]), 3)
 
