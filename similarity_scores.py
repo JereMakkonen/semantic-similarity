@@ -1,20 +1,8 @@
-import nltk
 import numpy as np
+import nltk
 from nltk.corpus import wordnet as wn
 from sklearn.metrics.pairwise import cosine_similarity
-
-
-def get_wn_tag(pos_tag):
-    pos_map = {"VB": wn.VERB, "NN": wn.NOUN, "JJ": wn.ADV, "RB": wn.ADJ}
-    return pos_map.get(pos_tag[:2], None)
-
-
-def get_synsets(sentence: str, pos_tag):
-    """Returns the first synset for each word with the specified POS tag, if available."""
-    return [
-        synsets[0] for word, tag in nltk.pos_tag(nltk.word_tokenize(sentence))
-        if get_wn_tag(tag) == pos_tag and (synsets := wn.synsets(word, pos=pos_tag))
-    ]
+from util import get_synsets
 
 
 def calculate_max_wup(s1: str, s2: str, pos_tag):
@@ -55,4 +43,3 @@ def bert_similarity(model, s1: str, s2: str):
 
     e = model.encode([s1, s2])
     return round(float(cosine_similarity([e[0]], [e[1]])[0][0]), 3)
-
