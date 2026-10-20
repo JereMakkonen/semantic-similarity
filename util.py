@@ -1,19 +1,25 @@
 import random
+from functools import lru_cache
 import nltk
 from nltk.corpus import wordnet as wn
 from nltk.corpus import stopwords
+
 
 def get_wn_tag(pos_tag):
     pos_map = {"VB": wn.VERB, "NN": wn.NOUN, "JJ": wn.ADJ, "RB": wn.ADV}
     return pos_map.get(pos_tag[:2], None)
 
 
-def get_synsets(sentence, pos_tag):
-    """Returns the first synset for each word with the specified POS tag, if available."""
-    return [
-        synsets[0] for word, tag in nltk.pos_tag(nltk.word_tokenize(sentence))
-        if get_wn_tag(tag) == pos_tag and (synsets := wn.synsets(word, pos=pos_tag))
-    ]
+@lru_cache(maxsize=50_000)
+def extract_synsets(sentence):
+    """Extract noun and verb synsets for a given sentence."""
+    result = {wn.NOUN: [], wn.VERB: []}
+    
+    for w, tag in nltk.pos_tag(nltk.word_tokenize(sentence)):
+        if (pos := get_wn_tag(tag)) in result and (syn := wn.synsets(w, pos)):
+            result[pos].append(syn[0])
+
+    return {pos: tuple(syn) for pos, syn in result.items()}
 
 
 def lemma_filter(sentence):
