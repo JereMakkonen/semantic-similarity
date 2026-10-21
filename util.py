@@ -1,8 +1,9 @@
 import random
 from functools import lru_cache
+
 import nltk
-from nltk.corpus import wordnet as wn
 from nltk.corpus import stopwords
+from nltk.corpus import wordnet as wn
 
 
 def get_wn_tag(pos_tag):

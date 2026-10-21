@@ -1,7 +1,9 @@
-import numpy as np
 from functools import lru_cache
+
 import nltk
+import numpy as np
 from nltk.corpus import wordnet as wn
+
 from util import extract_synsets
 
 
@@ -12,10 +14,10 @@ def wup(syn1, syn2):
 def max_wup(syn1, syn2):
     return max((wup(s1, s2) for s1 in syn1 for s2 in syn2), default=0)
 
-
 def mean_wup(s1: list[str], s2: list[str]):
+    """For sentence pairs returns: (max(noun_wup) + max(verb_wup)) / 2"""
+    
     scores = []
-
     for a, b in zip(s1, s2):
         syn1, syn2 = extract_synsets(a), extract_synsets(b)
 
@@ -28,6 +30,8 @@ def mean_wup(s1: list[str], s2: list[str]):
 
 
 def embedding_similarity(model, s1: list[str], s2: list[str]):
+    """Cosine similarities of sentences for models Word2Vec and FastText"""
+    
     def vectorize(sentences):
         return np.array([
             np.mean(v, axis=0) if v else np.zeros(model.vector_size)
@@ -43,6 +47,8 @@ def embedding_similarity(model, s1: list[str], s2: list[str]):
 
 
 def bert_similarity(model, s1: list[str], s2: list[str]):
+    """Cosine similarities of sentences for BERT models"""
+    
     e = model.encode(s1 + s2, normalize_embeddings=True)
     return np.vecdot(e[:len(s1)], e[len(s1):], axis=1)
 
